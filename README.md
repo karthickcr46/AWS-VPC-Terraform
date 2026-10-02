@@ -24,7 +24,7 @@ The previous `VPC-main/` tree was a duplicate of this root and has been removed.
 
 ## Remote state
 
-State is stored in S3 bucket `powertool2027`, key `vpc/terraform.tfstate`, region `us-east-1`, with S3 native locking (`use_lockfile`).
+State is stored in S3 bucket `powertool2028`, key `vpc/terraform.tfstate`, region `us-east-1`, with S3 native locking (`use_lockfile`).
 
 ## Local apply
 
