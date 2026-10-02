@@ -1,0 +1,55 @@
+name: Terraform
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Workspace to select. Use default for the primary state.
+        required: true
+        default: default
+        type: choice
+        options:
+          - default
+          - dev
+          - staging
+          - prod
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.5"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Init
+        run: terraform init
+
+      - name: Select workspace
+        run: |
+          if [ "${{ inputs.environment }}" != "default" ]; then
+            terraform workspace select "${{ inputs.environment }}" || terraform workspace new "${{ inputs.environment }}"
+          fi
+
+      - name: Plan
+        run: terraform plan -out=tfplan
+
+      - name: Apply
+        run: terraform apply -auto-approve tfplan
